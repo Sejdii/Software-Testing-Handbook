@@ -42,7 +42,7 @@ when(createUserFactory.createUser("login", "password"))
 User createdUser = createUserService.createUser(createCreateUserCommand());
 
 // then
-verify(createUserFactory).createUser(any());
+verify(createUserFactory).createUser(any()); // this line is not needed
 
 assertCreatedUser(createdUser);
 ```

@@ -62,7 +62,7 @@ dependencies can be mocked while others use real implementations.
 A great talk by Sandro Mancuso on this topic is available
 here: [Does TDD Really Lead to Good Design? (Sandro Mancuso)](https://youtu.be/KyFVA4Spcgg?si=S5eOo9rR9g4rYP_e).
 
-### When to use a mock and when to use a real implementation?**
+### When to use a mock and when to use a real implementation?
 
 Here are some questions to help you decide whether to mock a dependency or use a real implementation:
 
