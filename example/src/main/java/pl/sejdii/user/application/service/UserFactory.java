@@ -6,15 +6,15 @@ import pl.sejdii.user.application.port.in.CreateUserUseCase;
 
 class UserFactory {
 
-    private final UserIdentifierGenerator userIdentifierGenerator;
+  private final UserIdentifierGenerator userIdentifierGenerator;
 
-    UserFactory(UserIdentifierGenerator userIdentifierGenerator) {
-        this.userIdentifierGenerator = userIdentifierGenerator;
-    }
+  UserFactory(UserIdentifierGenerator userIdentifierGenerator) {
+    this.userIdentifierGenerator = userIdentifierGenerator;
+  }
 
-    User create(CreateUserUseCase.Command command) {
-        UserIdentifier userIdentifier = userIdentifierGenerator.generate();
+  User create(CreateUserUseCase.Command command) {
+    UserIdentifier userIdentifier = userIdentifierGenerator.generate();
 
-        return new User(userIdentifier, command.firstName(), command.secondName());
-    }
+    return new User(userIdentifier, command.firstName(), command.secondName());
+  }
 }

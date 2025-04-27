@@ -4,5 +4,5 @@ import pl.sejdii.user.application.domain.User;
 
 public interface InsertUserPort {
 
-    void insert(User user);
+  void insert(User user);
 }

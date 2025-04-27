@@ -5,18 +5,18 @@ import pl.sejdii.user.application.domain.ValidationException;
 
 public interface CreateUserUseCase {
 
-    UserIdentifier create(Command command);
+  UserIdentifier create(Command command);
 
-    record Command(String firstName, String secondName) {
+  record Command(String firstName, String secondName) {
 
-        public Command {
-            if(firstName == null) {
-                throw new ValidationException("First name cannot be null");
-            }
+    public Command {
+      if (firstName == null) {
+        throw new ValidationException("First name cannot be null");
+      }
 
-            if(secondName == null) {
-                throw new ValidationException("Second name cannot be null");
-            }
-        }
+      if (secondName == null) {
+        throw new ValidationException("Second name cannot be null");
+      }
     }
+  }
 }
