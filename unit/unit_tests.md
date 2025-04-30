@@ -146,6 +146,56 @@ Here are some questions to help you decide whether to mock a dependency or use a
       mocked. This approach can significantly simplify tests. For operations like "fire and forget" messaging, simple
       mocks can be used without any negative impact.
 
+## One Test, One Behavior
+
+It is crucial that each test verifies exactly one behavior.  
+This principle ensures that tests are focused, easy to understand, and maintainable.  
+A single test that checks multiple behaviors can lead to confusion, make debugging harder, and increase maintenance efforts.
+
+The following test violates the principle by testing two behaviors at once:
+
+```groovy
+def "Should create user and send welcome email"() {
+    given: "Command of user creation"
+    def command = new CreateUserUseCase.Command(FIRST_NAME, LAST_NAME, EMAIL)
+
+    and: "Mock email service"
+    emailService.sendWelcomeEmail(EMAIL) >> true
+
+    when: "User is created"
+    createUserUseCase.create(command)
+
+    then: "User is created"
+    1 * insertUserPort.insert(_ as User) >> { User user ->
+        assert user.identifier().value() == GENERATED_IDENTIFIER
+        assert user.firstName() == FIRST_NAME
+        assert user.surname() == LAST_NAME
+        assert user.email() == EMAIL
+        return user.identifier()
+    }
+
+    and: "Welcome email is sent"
+    1 * emailService.sendWelcomeEmail(EMAIL)
+}
+```
+
+This test checks two behaviors:
+- User creation
+- Sending a welcome email
+
+These are two independent behaviors that can change for different reasons.
+Combining them into a single test makes it harder to identify the cause of a failure
+and increases maintenance complexity.
+
+### Why is This Important?
+
+1. **Clarity:** Each test has a clear and singular purpose, making it easier to understand what is being verified.
+2. **Debugging:** When a test fails, it is immediately clear which behavior is broken, simplifying the debugging process.
+3. **Maintainability:** Focused tests are easier to update when the code changes, reducing the risk of unintended side effects.
+
+By adhering to the "one test, one behavior" rule,
+you ensure that your tests remain robust and readable.
+
 # What is not worth to unit test
 
 - **Adapters for External Systems:**  
@@ -166,4 +216,4 @@ https://martinfowler.com/bliki/UnitTest.html
 
 [Does TDD Really Lead to Good Design? (Sandro Mancuso)](https://youtu.be/KyFVA4Spcgg?si=S5eOo9rR9g4rYP_e)
 
-[Clean Code: A Handbook of Agile Software Craftsmanship (Rober C. Martin)](https://www.amazon.pl/Clean-Code-Handbook-Software-Craftsmanship/dp/0132350882)
+[Clean Code: A Handbook of Agile Software Craftsmanship (Rober C. Martin)](https://www.amazon.com/Clean-Code-Handbook-Software-Craftsmanship/dp/0132350882)
