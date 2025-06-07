@@ -218,10 +218,6 @@ Following stubbings are unnecessary (click to navigate to relevant line of code)
   1. -> at pl.sejdii.user.application.service.MockitoAntiPatternExampleTest.setUp(MockitoAntiPatternExampleTest.java:40)
 ```
 
-In Spock, it looks different—all mocks are lenient by default,
-but you can enforce strictness by using `0 * _` in the test.
-Although as Spock is lenient by design, it can be accepted as a feature of the framework.
-
 In Spock, the situation is different: all mocks are lenient by default.
 However, you can enforce strictness in your tests by specifying `0 * _` interactions.
 Since leniency is a design feature of Spock, it is generally accepted as part of the framework,
