@@ -1,0 +1,30 @@
+# yaml-language-server: $schema=https://squidfunk.github.io/mkdocs-material/schema.json
+
+site_name: Software Testing Handbook
+repo_url: https://github.com/Sejdii/Software-Testing-Handbook
+repo_name: Software Testing Handbook
+site_url: https://sejdii.github.io/Software-Testing-Handbook
+theme:
+  name: material
+  palette:
+    - scheme: default
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+
+    - scheme: slate
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+nav:
+  - index.md
+  - unit/unit_tests.md
+  - avoid.md
+markdown_extensions:
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences

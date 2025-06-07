@@ -2,5 +2,5 @@
 
 ## Table of Contents
 
-1. [Unit tests](unit/unit_tests.md)
-2. [What should be avoided](avoid/avoid.md)
+1. [Unit tests](docs/unit/unit_tests.md)
+2. [What should be avoided](docs/avoid.md)

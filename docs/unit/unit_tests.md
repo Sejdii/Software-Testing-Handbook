@@ -3,12 +3,14 @@
 Unit tests form the foundation of the testing pyramid. They should constitute the majority of the tests in a project, as they are designed to be fast, stable, and inexpensive to run.
 
 The term "unit" itself is quite vague and can be misleading—it doesn't refer solely to a single class or method, as is often assumed. A unit can be:
+
 - A single class,
 - A group of classes,
 - A module,
 - An aggregate (in the context of Domain-Driven Design, DDD).
 
 However, the size of the unit is a secondary consideration. What matters most are the characteristics of unit tests, as summarized by the F.I.R.S.T. principle from Robert C. Martin's *Clean Code* book:
+
 - **Fast:** Unit tests should execute quickly.
 - **Independent:** They should not depend on each other; each test must be able to run in isolation.
 - **Repeatable:** They should produce the same result every time they are run, regardless of the environment.
@@ -210,7 +212,7 @@ you ensure that your tests remain robust and readable.
 
 # References
 
-https://martinfowler.com/bliki/UnitTest.html
+[https://martinfowler.com/bliki/UnitTest.html](https://martinfowler.com/bliki/UnitTest.html)
 
 [Improving your Test Driven Development in 45 minutes - Jakub Nabrdalik](https://www.youtube.com/watch?v=2vEoL3Irgiw)
 
