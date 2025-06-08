@@ -198,7 +198,7 @@ and increases maintenance complexity.
 By adhering to the "one test, one behavior" rule,
 you ensure that your tests remain robust and readable.
 
-# What is not worth to unit test
+## What is not worth to unit test
 
 - **Adapters for External Systems:**  
   Components that interface with external services such as databases, HTTP APIs, or messaging systems should be tested
@@ -210,7 +210,7 @@ you ensure that your tests remain robust and readable.
   If these methods do nothing more than return or set a value, writing unit tests for them might not be worthwhile,
   unless additional logic is present.
 
-# References
+## References
 
 [https://martinfowler.com/bliki/UnitTest.html](https://martinfowler.com/bliki/UnitTest.html)
 

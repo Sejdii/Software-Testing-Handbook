@@ -2,7 +2,7 @@
 
 ## Waiting in tests
 
-Since unit tests should be fast and efficient, avoid using blocking calls like `sleep` in your test code. Using
+Since tests should be fast and efficient, avoid using blocking calls like `sleep` in your test code. Using
 `Thread.sleep` introduces unnecessary delays and can lead to flaky tests.
 
 For example, instead of writing:
@@ -15,9 +15,8 @@ It's preferable to use a more robust waiting mechanism. One such alternative is 
 to wait for a condition to be met within a specified timeout:
 
 ```java
-await().
-
-atMost(1,SECONDS)
+await()
+    .atMost(1,SECONDS)
     .until(() ->{
         // some condition
         });
