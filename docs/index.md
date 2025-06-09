@@ -6,7 +6,9 @@
 
 ## For who is it?
 
-This guide is intended for software engineers of all experience levels. Beginners will find it helpful for learning best practices and becoming familiar with many types of tests. More experienced developers can use it to refresh and organize their knowledge. The example code is written in JVM languages such as Java, with tests using JUnit or Spock, but most of the concepts are universal and can be applied to any programming language or testing framework.
+This guide is intended for software engineers of all experience levels. Beginners will find it helpful for learning best practices and becoming familiar with many types of tests. More experienced developers can use it to refresh and organize their knowledge. 
+
+The example code is written in JVM languages such as Java, with tests using JUnit or Spock, but most of the concepts are universal and can be applied to any programming language or testing framework. Additionally, the code examples are mostly written in a hexagonal architecture style (see "example" module on GitHub).
 
 ## Goals
 

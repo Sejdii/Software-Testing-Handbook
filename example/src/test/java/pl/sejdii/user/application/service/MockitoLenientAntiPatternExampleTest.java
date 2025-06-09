@@ -17,7 +17,7 @@ import pl.sejdii.user.application.port.in.CreateUserUseCase;
 import pl.sejdii.user.application.port.out.InsertUserPort;
 
 @ExtendWith(MockitoExtension.class)
-class MockitoAntiPatternExampleTest {
+class MockitoLenientAntiPatternExampleTest {
 
   private static final String GENERATED_IDENTIFIER = "EMP0001";
   private static final String FIRST_NAME = "Joe";
