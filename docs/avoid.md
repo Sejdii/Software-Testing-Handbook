@@ -214,7 +214,7 @@ sending a clear signal that this mock or stubbing should be removed.
 Unnecessary stubbings detected.
 Clean & maintainable test code requires zero unnecessary code.
 Following stubbings are unnecessary (click to navigate to relevant line of code):
-  1. -> at pl.sejdii.user.application.service.MockitoAntiPatternExampleTest.setUp(MockitoAntiPatternExampleTest.java:40)
+  1. -> at pl.sejdii.example.user.application.service.MockitoAntiPatternExampleTest.setUp(MockitoAntiPatternExampleTest.java:40)
 ```
 
 In Spock, the situation is different: all mocks are lenient by default.
