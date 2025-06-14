@@ -24,24 +24,24 @@ We can distinguish between two styles of unit tests: **solitary** and **sociable
 ![solitary tests](solitary_unit_test.png)
 
 ```groovy
-def "Should create user"() {
-    given: "Command of user creation"
-    def command = new CreateUserUseCase.Command(FIRST_NAME, LAST_NAME)
+def "Should create participant"() {
+    given: "Command of participant creation"
+    def command = new CreateReservationParticipantUseCase.Command(FIRST_NAME, LAST_NAME)
 
-    this.userFactory.create(command) >> new User(new UserIdentifier(GENERATED_IDENTIFIER), FIRST_NAME, LAST_NAME)
+    this.participantFactory.create(command) >> new ReservationParticipant(new ReservationParticipantIdentifier(GENERATED_IDENTIFIER), FIRST_NAME, LAST_NAME)
 
-    when: "User is created"
-    def identifier = createUserUseCase.create(command)
+    when: "Participant is created"
+    def identifier = createParticipantUseCase.create(command)
 
     then: "Identifier is generated"
     identifier.value() == GENERATED_IDENTIFIER
 
-    and: "User is inserted into repository"
-    1 * insertUserPort.insert(_ as User) >> { User user ->
-        assert user.identifier().value() == GENERATED_IDENTIFIER
-        assert user.firstName() == FIRST_NAME
-        assert user.surname() == LAST_NAME
-        return user.identifier()
+    and: "Participant is inserted into repository"
+    1 * insertParticipantPort.insert(_ as ReservationParticipant) >> { ReservationParticipant participant ->
+        assert participant.identifier().value() == GENERATED_IDENTIFIER
+        assert participant.firstName() == FIRST_NAME
+        assert participant.surname() == LAST_NAME
+        return participant.identifier()
     }
 }
 ```
@@ -68,23 +68,23 @@ under test from its collaborators.
 ![sociable tests](sociable_unit_test.png)
 
 ```groovy
-def "Should create user"() {
-    given: "Command of user creation"
-    def command = new CreateUserUseCase.Command(FIRST_NAME, LAST_NAME)
+def "Should create participant"() {
+    given: "Command of participant creation"
+    def command = new CreateReservationParticipantUseCase.Command(FIRST_NAME, LAST_NAME)
 
-    when: "User is created"
-    def identifier = createUserUseCase.create(command)
+    when: "Participant is created"
+    def identifier = createParticipantUseCase.create(command)
 
     then: "Identifier is generated"
     identifier.value() == GENERATED_IDENTIFIER
 
-    and: "User is inserted into repository"
-    def userByIdentifier = userInMemoryAdapter.findBy(identifier)
-    userByIdentifier.isPresent()
+    and: "Participant is inserted into repository"
+    def participantByIdentifier = participantInMemoryAdapter.findBy(identifier)
+    participantByIdentifier.isPresent()
 
-    def user = userByIdentifier.get()
-    user.firstName() == FIRST_NAME
-    user.surname() == LAST_NAME
+    def participant = participantByIdentifier.get()
+    participant.firstName() == FIRST_NAME
+    participant.surname() == LAST_NAME
 }
 ```
 

@@ -1,4 +1,4 @@
-package pl.sejdii.example.user.application.domain;
+package pl.sejdii.example.application.domain.model;
 
 public class ValidationException extends RuntimeException {
 
