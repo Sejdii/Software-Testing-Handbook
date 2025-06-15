@@ -11,7 +11,7 @@ The test pyramid is a concept in software testing that illustrates the types of 
 
 The base of the pyramid consists of [unit tests](../unit/unit_tests.md), which are fast, inexpensive to write, and stable. The majority of business logic should be covered by these tests. Unit tests give a short feedback loop, allowing developers to quickly identify and fix issues.
 
-The next layer is integration tests. These tests check how the application interacts with external systems such as databases, message brokers, or other services (contract tests). Integration tests are slower and more expensive to set up than unit tests.
+The next layer are integration tests. These tests check how the application interacts with external systems such as databases, message brokers, or other services (contract tests). Integration tests are slower and more expensive to set up than unit tests.
 
 In the middle of the pyramid are component tests. These verify end-to-end use cases within the application, typically starting from incoming adapters, passing through business logic, and ending with outgoing adapters. Component tests are relatively slow, more expensive to write than integration tests, and more brittle. They mainly focus on validating happy paths.
 

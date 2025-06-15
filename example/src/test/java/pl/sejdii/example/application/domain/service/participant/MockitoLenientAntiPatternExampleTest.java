@@ -3,6 +3,7 @@ package pl.sejdii.example.application.domain.service.participant;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static pl.sejdii.example.application.domain.model.participant.ReservationParticipantTestFactory.*;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -12,16 +13,12 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import pl.sejdii.example.application.domain.model.participant.ReservationParticipant;
-import pl.sejdii.example.application.domain.model.participant.ReservationParticipantIdentifier;
+import pl.sejdii.example.application.domain.model.participant.ReservationParticipantTestFactory;
 import pl.sejdii.example.application.port.in.CreateReservationParticipantUseCase;
 import pl.sejdii.example.application.port.out.InsertReservationParticipantPort;
 
 @ExtendWith(MockitoExtension.class)
 class MockitoLenientAntiPatternExampleTest {
-
-  private static final String GENERATED_IDENTIFIER = "EMP0001";
-  private static final String FIRST_NAME = "Joe";
-  private static final String LAST_NAME = "Doe";
 
   @Mock private ReservationParticipantFactory reservationParticipantFactory;
 
@@ -40,12 +37,10 @@ class MockitoLenientAntiPatternExampleTest {
   void shouldCreateParticipant() {
     // Given
     CreateReservationParticipantUseCase.Command command =
-        new CreateReservationParticipantUseCase.Command(FIRST_NAME, LAST_NAME);
+        new CreateReservationParticipantUseCase.Command(FIRST_NAME, SURNAME);
 
     when(reservationParticipantFactory.create(command))
-        .thenReturn(
-            new ReservationParticipant(
-                new ReservationParticipantIdentifier(GENERATED_IDENTIFIER), FIRST_NAME, LAST_NAME));
+        .thenReturn(ReservationParticipantTestFactory.create());
 
     // When
     createReservationParticipantService.create(command);
