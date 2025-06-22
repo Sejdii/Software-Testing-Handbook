@@ -1,5 +1,6 @@
 package pl.sejdii.example.application.domain.service.participant;
 
+import org.springframework.transaction.annotation.Transactional;
 import pl.sejdii.example.application.domain.model.participant.ReservationParticipant;
 import pl.sejdii.example.application.domain.model.participant.ReservationParticipantIdentifier;
 import pl.sejdii.example.application.port.in.CreateReservationParticipantUseCase;
@@ -18,6 +19,7 @@ class CreateReservationParticipantService implements CreateReservationParticipan
   }
 
   @Override
+  @Transactional
   public ReservationParticipantIdentifier create(Command command) {
     ReservationParticipant reservationParticipant = reservationParticipantFactory.create(command);
     insertReservationParticipantPort.insert(reservationParticipant);

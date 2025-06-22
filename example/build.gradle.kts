@@ -31,6 +31,7 @@ val groovyVersion = "3.0.24"
 val mockitoVersion = "5.18.0"
 val byteBuddyVersion = "1.17.5"
 val objenesisVersion = "3.4"
+val mapstructVersion = "1.6.3"
 
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter-data-jdbc")
@@ -38,12 +39,14 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.flywaydb:flyway-core")
     implementation("org.flywaydb:flyway-database-postgresql")
+    implementation("org.mapstruct:mapstruct:$mapstructVersion")
 
     compileOnly("org.projectlombok:lombok")
 
     runtimeOnly("org.postgresql:postgresql")
 
     annotationProcessor("org.projectlombok:lombok")
+    annotationProcessor("org.mapstruct:mapstruct-processor:$mapstructVersion")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.springframework.boot:spring-boot-testcontainers")
@@ -57,6 +60,8 @@ dependencies {
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     testRuntimeOnly("net.bytebuddy:byte-buddy:$byteBuddyVersion")
     testRuntimeOnly("org.objenesis:objenesis:$objenesisVersion")
+
+    testCompileOnly("org.projectlombok:lombok")
 }
 
 tasks.withType<Test> {

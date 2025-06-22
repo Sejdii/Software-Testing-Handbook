@@ -11,10 +11,6 @@ public record ReservationPeriod(LocalDateTime from, LocalDateTime to) {
       throw new ValidationException("From date cannot be after to date");
     }
 
-    if (from.isBefore(LocalDateTime.now())) {
-      throw new ValidationException("From date cannot be before current date");
-    }
-
     if (ChronoUnit.DAYS.between(from, to) > 3) {
       throw new ValidationException("Reservation period cannot be longer than 3 days");
     }

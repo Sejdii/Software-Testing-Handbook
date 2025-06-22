@@ -3,10 +3,12 @@ package pl.sejdii.example.application.domain.model.room;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import pl.sejdii.example.application.domain.model.ValidationException;
 import pl.sejdii.example.application.domain.model.reservation.Reservation;
 import pl.sejdii.example.application.domain.model.reservation.ReservationPeriod;
 
+@RequiredArgsConstructor
 public class Room {
 
   @Getter private final RoomIdentifier identifier;
@@ -20,7 +22,7 @@ public class Room {
   }
 
   public void reserve(Reservation reservation) {
-    if (reservation.roomIdentifier() != identifier) {
+    if (!reservation.roomIdentifier().equals(identifier)) {
       throw new IllegalArgumentException("Room identifier does not match");
     }
 

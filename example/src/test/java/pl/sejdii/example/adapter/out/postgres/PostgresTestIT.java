@@ -9,18 +9,18 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.containers.PostgreSQLContainer;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
 
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-@Testcontainers
-abstract class PostgresTestIT {
+public abstract class PostgresTestIT {
 
-  @Container
   protected static final PostgreSQLContainer<?> postgreSQLContainer =
       new PostgreSQLContainer<>(DockerImageName.parse("postgres:latest"));
+
+  static {
+    postgreSQLContainer.start();
+  }
 
   @DynamicPropertySource
   static void registerProperties(DynamicPropertyRegistry registry) {
@@ -36,6 +36,7 @@ abstract class PostgresTestIT {
   @BeforeEach
   void enableStatistics() {
     statistics = sessionFactory.getStatistics();
+    statistics.clear();
     statistics.setStatisticsEnabled(true);
   }
 }

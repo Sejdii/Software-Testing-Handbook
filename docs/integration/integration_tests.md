@@ -69,12 +69,12 @@ class ParticipantPostgresAdapterTestIT extends PostgresTestIT {
         adapter.insert(participant);
 
         // then
+        StatisticAssertions.assertThat(statistics).hasInsertCount(1);
+        
         ReservationParticipantEntity savedParticipant =
                 repository.findByIdentifier(IDENTIFIER).orElseThrow();
         assertThat(savedParticipant.getFirstName()).isEqualTo(FIRST_NAME);
         assertThat(savedParticipant.getSurname()).isEqualTo(SURNAME);
-
-        StatisticAssertions.assertThat(statistics).hasInsertCount(1);
     }
 }
 ```
@@ -105,6 +105,7 @@ abstract class PostgresTestIT {
     @BeforeEach
     void enableStatistics() {
         statistics = sessionFactory.getStatistics();
+        statistics.clear();
         statistics.setStatisticsEnabled(true);
     }
 }

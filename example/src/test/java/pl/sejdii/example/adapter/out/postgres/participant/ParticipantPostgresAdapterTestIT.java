@@ -1,4 +1,4 @@
-package pl.sejdii.example.adapter.out.postgres;
+package pl.sejdii.example.adapter.out.postgres.participant;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static pl.sejdii.example.application.domain.model.participant.ReservationParticipantTestFactory.*;
@@ -6,6 +6,8 @@ import static pl.sejdii.example.application.domain.model.participant.Reservation
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import pl.sejdii.example.adapter.out.postgres.PostgresTestIT;
+import pl.sejdii.example.adapter.out.postgres.StatisticAssertions;
 import pl.sejdii.example.application.domain.model.participant.ReservationParticipant;
 import pl.sejdii.example.application.domain.model.participant.ReservationParticipantTestFactory;
 
@@ -29,11 +31,11 @@ class ParticipantPostgresAdapterTestIT extends PostgresTestIT {
     adapter.insert(participant);
 
     // then
+    StatisticAssertions.assertThat(statistics).hasInsertCount(1);
+
     ReservationParticipantEntity savedParticipant =
-        repository.findByIdentifier(IDENTIFIER).orElseThrow();
+        repository.findByIdentifier(IDENTIFIER_AS_STRING).orElseThrow();
     assertThat(savedParticipant.getFirstName()).isEqualTo(FIRST_NAME);
     assertThat(savedParticipant.getSurname()).isEqualTo(SURNAME);
-
-    StatisticAssertions.assertThat(statistics).hasInsertCount(1);
   }
 }

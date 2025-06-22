@@ -3,7 +3,7 @@ package pl.sejdii.example.adapter.out.postgres;
 import org.assertj.core.api.AbstractAssert;
 import org.hibernate.stat.Statistics;
 
-class StatisticAssertions extends AbstractAssert<StatisticAssertions, Statistics> {
+public class StatisticAssertions extends AbstractAssert<StatisticAssertions, Statistics> {
 
   protected StatisticAssertions(Statistics statistics) {
     super(statistics, StatisticAssertions.class);
@@ -19,6 +19,16 @@ class StatisticAssertions extends AbstractAssert<StatisticAssertions, Statistics
       failWithMessage(
           "Expected entity insert count to be <%s> but was <%s>",
           expected, actual.getEntityInsertCount());
+    }
+    return this;
+  }
+
+  public StatisticAssertions hasQueryCount(int expected) {
+    isNotNull();
+    if (actual.getPrepareStatementCount() != expected) {
+      failWithMessage(
+          "Expected entity select count to be <%s> but was <%s>",
+          expected, actual.getPrepareStatementCount());
     }
     return this;
   }

@@ -1,4 +1,4 @@
-package pl.sejdii.example.adapter.out.postgres;
+package pl.sejdii.example.adapter.out.postgres.participant;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Profile;

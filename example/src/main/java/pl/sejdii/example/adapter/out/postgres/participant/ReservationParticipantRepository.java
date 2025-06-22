@@ -1,4 +1,4 @@
-package pl.sejdii.example.adapter.out.postgres;
+package pl.sejdii.example.adapter.out.postgres.participant;
 
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
