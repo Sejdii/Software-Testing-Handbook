@@ -1,6 +1,7 @@
 package pl.sejdii.example.adapter.out.postgres.room;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static pl.sejdii.example.application.domain.model.reservation.ReservationPeriodTestFactory.createPeriodBetween;
 
 import java.util.List;
@@ -123,9 +124,56 @@ class RoomPostgresAdapterTestIT extends PostgresTestIT {
     assertThat(activeReservations).hasSize(2);
 
     assertReservationBetween10and12(
-        findReservation(activeReservations, firstReservation.identifier()), room.getIdentifier());
+        findReservation(activeReservations, firstReservation.getIdentifier()),
+        room.getIdentifier());
     assertReservationBetween12and14(
-        findReservation(activeReservations, secondReservation.identifier()), room.getIdentifier());
+        findReservation(activeReservations, secondReservation.getIdentifier()),
+        room.getIdentifier());
+  }
+
+  @Test
+  @Sql("insert-room-with-reservations.sql")
+  void shouldUpdateRoomWithNewReservation() {
+    // given
+    Room existingRoom =
+        adapter.find(new RoomIdentifier("aedd07ed-efd5-4720-99b0-7ae731df43ff")).orElseThrow();
+
+    Reservation newReservation =
+        new Reservation(
+            ReservationParticipantTestFactory.IDENTIFIER,
+            createPeriodBetween(13, 15),
+            existingRoom.getIdentifier(),
+            3);
+    existingRoom.reserve(newReservation);
+
+    statistics.clear();
+
+    // when
+    adapter.update(existingRoom);
+
+    // then
+    StatisticAssertions.assertThat(statistics).hasQueryCount(1).hasUpdateCount(0).hasInsertCount(1);
+
+    Room updatedRoom = adapter.find(existingRoom.getIdentifier()).orElseThrow();
+    assertThat(updatedRoom.getActiveReservations()).hasSize(2);
+
+    Reservation newInsertedReservation =
+        findReservation(updatedRoom.getActiveReservations(), newReservation.getIdentifier());
+    assertThat(newInsertedReservation)
+        .usingRecursiveComparison()
+        .ignoringFields("technicalId")
+        .isEqualTo(newReservation);
+  }
+
+  @Test
+  void shouldThrowExceptionWhenRoomIsNotYetPersisted() {
+    // given
+    Room room = new Room(5);
+
+    // when then
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> adapter.update(room))
+        .withMessage("Room is not persisted yet.");
   }
 
   private static void assertRoom(Room room) {
@@ -137,35 +185,36 @@ class RoomPostgresAdapterTestIT extends PostgresTestIT {
   }
 
   private static void assertReservation(Reservation reservation) {
-    assertThat(reservation.identifier().value()).isEqualTo("3aeb88fb-5d68-4ec2-85b4-977da4e58b6f");
-    assertThat(reservation.reservationOwnerIdentifier().value()).isEqualTo("EMP0001");
-    assertThat(reservation.period().from()).isEqualTo("2025-06-01T10:00:00");
-    assertThat(reservation.period().to()).isEqualTo("2025-06-01T11:00:00");
-    assertThat(reservation.roomIdentifier().value())
+    assertThat(reservation.getIdentifier().value())
+        .isEqualTo("3aeb88fb-5d68-4ec2-85b4-977da4e58b6f");
+    assertThat(reservation.getReservationOwnerIdentifier().value()).isEqualTo("EMP0001");
+    assertThat(reservation.getPeriod().from()).isEqualTo("2025-06-01T10:00:00");
+    assertThat(reservation.getPeriod().to()).isEqualTo("2025-06-01T11:00:00");
+    assertThat(reservation.getRoomIdentifier().value())
         .isEqualTo("aedd07ed-efd5-4720-99b0-7ae731df43ff");
-    assertThat(reservation.numberOfParticipants()).isEqualTo(3);
+    assertThat(reservation.getNumberOfParticipants()).isEqualTo(3);
   }
 
   private static void assertReservationBetween10and12(
       Reservation reservation, RoomIdentifier expectedRoomIdentifier) {
-    assertThat(reservation.reservationOwnerIdentifier().value()).isEqualTo("EMP0001");
-    assertThat(reservation.period()).isEqualTo(createPeriodBetween(10, 12));
-    assertThat(reservation.roomIdentifier()).isEqualTo(expectedRoomIdentifier);
-    assertThat(reservation.numberOfParticipants()).isEqualTo(3);
+    assertThat(reservation.getReservationOwnerIdentifier().value()).isEqualTo("EMP0001");
+    assertThat(reservation.getPeriod()).isEqualTo(createPeriodBetween(10, 12));
+    assertThat(reservation.getRoomIdentifier()).isEqualTo(expectedRoomIdentifier);
+    assertThat(reservation.getNumberOfParticipants()).isEqualTo(3);
   }
 
   private static void assertReservationBetween12and14(
       Reservation reservation, RoomIdentifier expectedRoomIdentifier) {
-    assertThat(reservation.reservationOwnerIdentifier().value()).isEqualTo("EMP0001");
-    assertThat(reservation.period()).isEqualTo(createPeriodBetween(12, 14));
-    assertThat(reservation.roomIdentifier()).isEqualTo(expectedRoomIdentifier);
-    assertThat(reservation.numberOfParticipants()).isEqualTo(2);
+    assertThat(reservation.getReservationOwnerIdentifier().value()).isEqualTo("EMP0001");
+    assertThat(reservation.getPeriod()).isEqualTo(createPeriodBetween(12, 14));
+    assertThat(reservation.getRoomIdentifier()).isEqualTo(expectedRoomIdentifier);
+    assertThat(reservation.getNumberOfParticipants()).isEqualTo(2);
   }
 
   private static Reservation findReservation(
       List<Reservation> reservations, ReservationIdentifier identifier) {
     return reservations.stream()
-        .filter(it -> it.identifier().equals(identifier))
+        .filter(it -> it.getIdentifier().equals(identifier))
         .findAny()
         .orElseThrow();
   }

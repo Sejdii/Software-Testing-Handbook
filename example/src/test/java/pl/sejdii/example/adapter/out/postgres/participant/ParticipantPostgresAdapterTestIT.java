@@ -31,7 +31,7 @@ class ParticipantPostgresAdapterTestIT extends PostgresTestIT {
     adapter.insert(participant);
 
     // then
-    StatisticAssertions.assertThat(statistics).hasInsertCount(1);
+    StatisticAssertions.assertThat(statistics).hasQueryCount(1).hasInsertCount(1);
 
     ReservationParticipantEntity savedParticipant =
         repository.findByIdentifier(IDENTIFIER_AS_STRING).orElseThrow();

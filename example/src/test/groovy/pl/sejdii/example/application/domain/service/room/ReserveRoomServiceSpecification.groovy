@@ -7,6 +7,7 @@ import pl.sejdii.example.application.domain.model.room.Room
 import pl.sejdii.example.application.domain.model.room.RoomIdentifier
 import pl.sejdii.example.application.domain.model.room.RoomNotFoundException
 import pl.sejdii.example.application.port.in.ReserveRoomUseCase
+import pl.sejdii.example.application.port.out.SendRoomReservedMessagePort
 import spock.lang.Specification
 
 import static pl.sejdii.example.application.domain.model.participant.ReservationParticipantTestFactory.IDENTIFIER as PARTICIPANT_IDENTIFIER
@@ -14,9 +15,10 @@ import static pl.sejdii.example.application.domain.model.reservation.Reservation
 
 class ReserveRoomServiceSpecification extends Specification {
 
-	private RoomInMemoryAdapter roomInMemoryAdapter = new RoomInMemoryAdapter()
+	private final RoomInMemoryAdapter roomInMemoryAdapter = new RoomInMemoryAdapter()
+	private final SendRoomReservedMessagePort sendRoomReservedMessagePort = Mock(SendRoomReservedMessagePort)
 
-	private ReserveRoomUseCase useCase = new RoomConfiguration().reserveRoomService(roomInMemoryAdapter, roomInMemoryAdapter)
+	private ReserveRoomUseCase useCase = new RoomConfiguration().reserveRoomService(roomInMemoryAdapter, roomInMemoryAdapter, sendRoomReservedMessagePort)
 
 	def "Should reserve a room"() {
 		given: "Existing room"
@@ -34,12 +36,12 @@ class ReserveRoomServiceSpecification extends Specification {
 		def updatedRoom = roomInMemoryAdapter.find(room.getIdentifier()).orElseThrow()
 
 		def createdReservation = updatedRoom.getActiveReservations()
-				.find { it.identifier() == reservationIdentifier }
+				.find { it.getIdentifier() == reservationIdentifier }
 
-		createdReservation.reservationOwnerIdentifier() == PARTICIPANT_IDENTIFIER
-		createdReservation.period() == createPeriodBetween(11, 13)
-		createdReservation.roomIdentifier() == room.getIdentifier()
-		createdReservation.numberOfParticipants() == 9
+		createdReservation.getReservationOwnerIdentifier() == PARTICIPANT_IDENTIFIER
+		createdReservation.getPeriod() == createPeriodBetween(11, 13)
+		createdReservation.getRoomIdentifier() == room.getIdentifier()
+		createdReservation.getNumberOfParticipants() == 9
 	}
 
 	def "Should reserve a room which has reservation but is not overlapping requested period"() {
@@ -61,12 +63,35 @@ class ReserveRoomServiceSpecification extends Specification {
 		def updatedRoom = roomInMemoryAdapter.find(room.getIdentifier()).orElseThrow()
 
 		def createdReservation = updatedRoom.getActiveReservations()
-				.find { it.identifier() == reservationIdentifier }
+				.find { it.getIdentifier() == reservationIdentifier }
 
-		createdReservation.reservationOwnerIdentifier() == PARTICIPANT_IDENTIFIER
-		createdReservation.period() == createPeriodBetween(14, 16)
-		createdReservation.roomIdentifier() == room.getIdentifier()
-		createdReservation.numberOfParticipants() == 9
+		createdReservation.getReservationOwnerIdentifier() == PARTICIPANT_IDENTIFIER
+		createdReservation.getPeriod() == createPeriodBetween(14, 16)
+		createdReservation.getRoomIdentifier() == room.getIdentifier()
+		createdReservation.getNumberOfParticipants() == 9
+	}
+
+	def	"Should publish RoomReservedMessage after successful reservation"() {
+		given: "Existing room"
+		def room = new Room(10)
+		roomInMemoryAdapter.insert(room)
+
+		and: "Reservation command"
+		def command = new ReserveRoomUseCase.Command(PARTICIPANT_IDENTIFIER, room.getIdentifier(),
+				createPeriodBetween(11, 13), 9)
+
+		when: "Reserve room"
+		useCase.reserve(command)
+
+		then: "Message RoomReservedMessage is published"
+		1 * sendRoomReservedMessagePort.send(room, {
+			verifyAll(it, Reservation) {
+				reservationOwnerIdentifier == PARTICIPANT_IDENTIFIER
+				period == createPeriodBetween(11, 13)
+				roomIdentifier == room.getIdentifier()
+				numberOfParticipants == 9
+			}
+		})
 	}
 
 	def "Should throw exception when room doesn't exits"() {

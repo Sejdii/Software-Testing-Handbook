@@ -30,6 +30,10 @@ class RoomPostgresAdapter implements FindRoomPort, InsertRoomPort, UpdateRoomPor
 
   @Override
   public void update(Room room) {
+    if (room.getTechnicalId() == null) {
+      throw new IllegalArgumentException("Room is not persisted yet.");
+    }
+
     repository.save(mapper.map(room));
   }
 }

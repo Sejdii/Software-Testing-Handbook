@@ -69,7 +69,7 @@ class ParticipantPostgresAdapterTestIT extends PostgresTestIT {
         adapter.insert(participant);
 
         // then
-        StatisticAssertions.assertThat(statistics).hasInsertCount(1);
+        StatisticAssertions.assertThat(statistics).hasQueryCount(1).hasInsertCount(1);
         
         ReservationParticipantEntity savedParticipant =
                 repository.findByIdentifier(IDENTIFIER).orElseThrow();
@@ -84,12 +84,14 @@ And `PostgresTestIT` which is a template from postgres database adapters tests.
 ```java
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-@Testcontainers
 abstract class PostgresTestIT {
-
-    @Container
+    
     protected static final PostgreSQLContainer<?> postgreSQLContainer =
             new PostgreSQLContainer<>(DockerImageName.parse("postgres:latest"));
+
+    static {
+        postgreSQLContainer.start();
+    }
 
     @DynamicPropertySource
     static void registerProperties(DynamicPropertyRegistry registry) {
@@ -123,3 +125,112 @@ or other problems related to Hibernate entity configuration.
     However, in some cases, this behavior of `@DataJpaTest` may not be desirable. To disable transactional behavior 
     for a specific test, you can use the annotation `@Transactional(propagation = Propagation.NOT_SUPPORTED)` to 
     suspend the transaction created by the `@DataJpaTest` annotation.
+
+### AMQP adapters
+
+![amqp outgoing adapter test diagram](amqp_adapter_out_test.png)
+
+Integration tests for AMQP adapters ensure that messages are correctly sent to message brokers, such as Kafka or RabbitMQ.
+
+!!! warning "Is it worth performing such tests?"
+
+    If the message-sending logic is straightforward, these integration tests can often be omitted; verification is then 
+    typically covered with module or unit tests.  
+    However, if the logic includes more complex scenarios or multiple conditions, integration 
+    tests become valuable to ensure that the adapter interacts with the broker as intended.
+
+Integration testing of a Kafka-based AMQP adapter is exemplified below:
+
+```java
+class SendMessageKafkaAdapterTestIT extends KafkaTestIT {
+
+    private SendMessageKafkaAdapter adapter;
+
+    @BeforeEach
+    void setup() {
+        adapter = new SendMessageKafkaAdapter(template, objectMapper);
+    }
+
+    @Test
+    void shouldSendMessage(EmbeddedKafkaBroker embeddedKafkaBroker) {
+        // given
+        Room room = new Room(new RoomIdentifier("178caccd-d9cd-4e35-886d-2fc6e19f8ed5"), 5);
+        Reservation reservation = createReservation(room);
+        room.reserve(reservation);
+
+        // when
+        adapter.send(room, reservation);
+
+        // then
+        String messageContent = getMessageFromTopic(embeddedKafkaBroker, "roomReserved");
+        JsonAssert.comparator(JsonCompareMode.STRICT)
+                .assertIsMatch(
+                        """
+                                {
+                                    "roomIdentifier":"178caccd-d9cd-4e35-886d-2fc6e19f8ed5",
+                                    "reservationIdentifier":"14c9caff-cdae-46b9-9448-86fa2ee7bfd1",
+                                    "startTime":[2025,6,23,10,0],
+                                    "endTime":[2025,6,23,12,0]
+                                }
+                                """,
+                        messageContent);
+    }
+}
+```
+
+abstract base class for Kafka Integration tests:
+
+```java
+@EmbeddedKafka(kraft = true)
+abstract class KafkaTestIT {
+
+  protected final ObjectMapper objectMapper = createObjectMapper();
+
+  private final KafkaConfiguration kafkaConfiguration = new KafkaConfiguration();
+
+  protected KafkaTemplate<String, String> template;
+
+  @BeforeEach
+  void prepareKafkaTemplate(EmbeddedKafkaBroker embeddedKafkaBroker) {
+    embeddedKafkaBroker.addTopics(kafkaConfiguration.roomReservedTopic());
+
+    Map<String, Object> producerProps = KafkaTestUtils.producerProps(embeddedKafkaBroker);
+    ProducerFactory<String, String> producerFactory =
+        new DefaultKafkaProducerFactory<>(producerProps);
+    template = new KafkaTemplate<>(producerFactory);
+  }
+
+  protected String getMessageFromTopic(EmbeddedKafkaBroker embeddedKafkaBroker, String topic) {
+    Map<String, Object> consumerProps =
+        KafkaTestUtils.consumerProps("testT", "false", embeddedKafkaBroker);
+    DefaultKafkaConsumerFactory<String, String> cf =
+        new DefaultKafkaConsumerFactory<>(consumerProps);
+    Consumer<String, String> consumer = cf.createConsumer();
+    embeddedKafkaBroker.consumeFromAnEmbeddedTopic(consumer, topic);
+
+    return KafkaTestUtils.getSingleRecord(consumer, topic).value();
+  }
+
+  private static ObjectMapper createObjectMapper() {
+    ObjectMapper objectMapper = new ObjectMapper();
+    objectMapper.registerModule(new JavaTimeModule());
+    objectMapper.registerModule(new Jdk8Module());
+    return objectMapper;
+  }
+}
+```
+
+This test uses the `@EmbeddedKafka` annotation provided by Spring Boot
+([documentation](https://docs.spring.io/spring-kafka/reference/testing.html#example)).
+This approach is suitable for verifying message publication without requiring access to a real broker.
+
+**Considerations**:
+
+- **Configuration Duplication** - One drawback to using `@EmbeddedKafka` is the requirement to manually configure topics 
+    and Kafka-related beans in the test context. The test environment does not automatically inherit configuration from the production code.
+- **Alternative: Testcontainers** - As an alternative to `@EmbeddedKafka`, [Testcontainers](https://www.testcontainers.org/modules/kafka/) 
+    may be used to spin up a real Kafka broker in a Docker container. This approach more closely replicates 
+    production conditions.
+- **Test Scope:** - When leveraging Testcontainers, there is a choice between starting the entire Spring context 
+    (which may negatively impact test performance) and initializing only the necessary beans or configurations required 
+    for AMQP integration testing.

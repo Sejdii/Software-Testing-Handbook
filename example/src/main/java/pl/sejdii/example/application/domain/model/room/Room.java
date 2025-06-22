@@ -1,9 +1,11 @@
 package pl.sejdii.example.application.domain.model.room;
 
+import jakarta.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import pl.sejdii.example.application.domain.model.ValidationException;
 import pl.sejdii.example.application.domain.model.reservation.Reservation;
 import pl.sejdii.example.application.domain.model.reservation.ReservationPeriod;
@@ -16,21 +18,23 @@ public class Room {
 
   private final List<Reservation> activeReservations = new ArrayList<>();
 
+  @Nullable @Getter @Setter private Integer technicalId;
+
   public Room(int numberOfSeats) {
     this.identifier = RoomIdentifier.random();
     this.numberOfSeats = numberOfSeats;
   }
 
   public void reserve(Reservation reservation) {
-    if (!reservation.roomIdentifier().equals(identifier)) {
+    if (!reservation.getRoomIdentifier().equals(identifier)) {
       throw new IllegalArgumentException("Room identifier does not match");
     }
 
-    if (isTaken(reservation.period())) {
+    if (isTaken(reservation.getPeriod())) {
       throw new ValidationException("Room is already taken");
     }
 
-    if (numberOfSeats < reservation.numberOfParticipants()) {
+    if (numberOfSeats < reservation.getNumberOfParticipants()) {
       throw new ValidationException("Room is not large enough");
     }
 
@@ -38,7 +42,7 @@ public class Room {
   }
 
   public boolean isTaken(ReservationPeriod period) {
-    return activeReservations.stream().anyMatch(it -> it.period().overlaps(period));
+    return activeReservations.stream().anyMatch(it -> it.getPeriod().overlaps(period));
   }
 
   public List<Reservation> getActiveReservations() {

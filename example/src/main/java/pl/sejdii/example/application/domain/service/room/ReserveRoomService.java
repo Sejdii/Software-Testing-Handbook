@@ -8,6 +8,7 @@ import pl.sejdii.example.application.domain.model.room.Room;
 import pl.sejdii.example.application.domain.model.room.RoomNotFoundException;
 import pl.sejdii.example.application.port.in.ReserveRoomUseCase;
 import pl.sejdii.example.application.port.out.FindRoomPort;
+import pl.sejdii.example.application.port.out.SendRoomReservedMessagePort;
 import pl.sejdii.example.application.port.out.UpdateRoomPort;
 
 @RequiredArgsConstructor
@@ -15,6 +16,7 @@ class ReserveRoomService implements ReserveRoomUseCase {
 
   private final FindRoomPort findRoomPort;
   private final UpdateRoomPort updateRoomPort;
+  private final SendRoomReservedMessagePort sendRoomReservedMessagePort;
 
   @Override
   @Transactional
@@ -35,6 +37,8 @@ class ReserveRoomService implements ReserveRoomUseCase {
     room.reserve(reservation);
     updateRoomPort.update(room);
 
-    return reservation.identifier();
+    sendRoomReservedMessagePort.send(room, reservation);
+
+    return reservation.getIdentifier();
   }
 }

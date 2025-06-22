@@ -27,8 +27,18 @@ public class StatisticAssertions extends AbstractAssert<StatisticAssertions, Sta
     isNotNull();
     if (actual.getPrepareStatementCount() != expected) {
       failWithMessage(
-          "Expected entity select count to be <%s> but was <%s>",
+          "Expected query count to be <%s> but was <%s>",
           expected, actual.getPrepareStatementCount());
+    }
+    return this;
+  }
+
+  public StatisticAssertions hasUpdateCount(int expected) {
+    isNotNull();
+    if (actual.getEntityUpdateCount() != expected) {
+      failWithMessage(
+          "Expected entity update count to be <%s> but was <%s>",
+          expected, actual.getEntityUpdateCount());
     }
     return this;
   }

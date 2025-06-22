@@ -15,6 +15,7 @@ class RoomEntityMapper {
   Room map(RoomEntity roomEntity) {
     Room room =
         new Room(new RoomIdentifier(roomEntity.getIdentifier()), roomEntity.getNumberOfSeats());
+    room.setTechnicalId(roomEntity.getId());
 
     List<Reservation> reservations =
         roomEntity.getActiveReservations().stream().map(this::mapReservation).toList();
@@ -28,6 +29,7 @@ class RoomEntityMapper {
 
   RoomEntity map(Room room) {
     RoomEntity roomEntity = new RoomEntity();
+    roomEntity.setId(room.getTechnicalId());
     roomEntity.setIdentifier(room.getIdentifier().value());
     roomEntity.setNumberOfSeats(room.getNumberOfSeats());
 
@@ -42,21 +44,27 @@ class RoomEntityMapper {
   }
 
   private Reservation mapReservation(ReservationEntity entity) {
-    return new Reservation(
-        new ReservationIdentifier(entity.getIdentifier()),
-        new ReservationParticipantIdentifier(entity.getReservationOwnerIdentifier()),
-        new ReservationPeriod(entity.getStartTime(), entity.getEndTime()),
-        new RoomIdentifier(entity.getRoom().getIdentifier()),
-        entity.getNumberOfParticipants());
+    Reservation reservation =
+        new Reservation(
+            new ReservationIdentifier(entity.getIdentifier()),
+            new ReservationParticipantIdentifier(entity.getReservationOwnerIdentifier()),
+            new ReservationPeriod(entity.getStartTime(), entity.getEndTime()),
+            new RoomIdentifier(entity.getRoom().getIdentifier()),
+            entity.getNumberOfParticipants());
+
+    reservation.setTechnicalId(entity.getId());
+
+    return reservation;
   }
 
   private ReservationEntity mapReservation(Reservation reservation) {
     ReservationEntity entity = new ReservationEntity();
-    entity.setIdentifier(reservation.identifier().value());
-    entity.setReservationOwnerIdentifier(reservation.reservationOwnerIdentifier().value());
-    entity.setStartTime(reservation.period().from());
-    entity.setEndTime(reservation.period().to());
-    entity.setNumberOfParticipants(reservation.numberOfParticipants());
+    entity.setId(reservation.getTechnicalId());
+    entity.setIdentifier(reservation.getIdentifier().value());
+    entity.setReservationOwnerIdentifier(reservation.getReservationOwnerIdentifier().value());
+    entity.setStartTime(reservation.getPeriod().from());
+    entity.setEndTime(reservation.getPeriod().to());
+    entity.setNumberOfParticipants(reservation.getNumberOfParticipants());
 
     return entity;
   }
