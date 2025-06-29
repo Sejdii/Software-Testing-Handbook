@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+    <url>
+         <loc>https://sejdii.github.io/Software-Testing-Handbook/</loc>
+         <lastmod>2025-06-29</lastmod>
+    </url>
+    <url>
+         <loc>https://sejdii.github.io/Software-Testing-Handbook/avoid/</loc>
+         <lastmod>2025-06-29</lastmod>
+    </url>
+    <url>
+         <loc>https://sejdii.github.io/Software-Testing-Handbook/integration/integration_tests/</loc>
+         <lastmod>2025-06-29</lastmod>
+    </url>
+    <url>
+         <loc>https://sejdii.github.io/Software-Testing-Handbook/pyramid/test_pyramid/</loc>
+         <lastmod>2025-06-29</lastmod>
+    </url>
+    <url>
+         <loc>https://sejdii.github.io/Software-Testing-Handbook/unit/unit_tests/</loc>
+         <lastmod>2025-06-29</lastmod>
+    </url>
+</urlset>
