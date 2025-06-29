@@ -135,7 +135,7 @@ Integration tests for AMQP adapters ensure that messages are correctly sent to m
 !!! warning "Is it worth performing such tests?"
 
     If the message-sending logic is straightforward, these integration tests can often be omitted; verification is then 
-    typically covered with module or unit tests.  
+    typically covered with module tests.  
     However, if the logic includes more complex scenarios or multiple conditions, integration 
     tests become valuable to ensure that the adapter interacts with the broker as intended.
 
@@ -221,7 +221,7 @@ abstract class KafkaTestIT {
 ```
 
 This test uses the `@EmbeddedKafka` annotation provided by Spring Boot
-([documentation](https://docs.spring.io/spring-kafka/reference/testing.html#example)).
+([documentation](https://docs.spring.io/spring-kafka/reference/testing.html)).
 This approach is suitable for verifying message publication without requiring access to a real broker.
 
 **Considerations**:
@@ -234,3 +234,84 @@ This approach is suitable for verifying message publication without requiring ac
 - **Test Scope:** - When leveraging Testcontainers, there is a choice between starting the entire Spring context 
     (which may negatively impact test performance) and initializing only the necessary beans or configurations required 
     for AMQP integration testing.
+
+## Incoming Adapters
+
+### Web Adapters
+
+![web incoming adapter test diagram](web_adapter_test.png)
+
+The goal of the incoming web adapters integration test is to check:
+
+- **Endpoint Configuration**: Verify that endpoints are correctly mapped and accessible at the intended URLs.
+- **Request/Response Handling**: Ensure that the controller accurately interprets incoming requests and that responses 
+  have the correct status codes, headers, and body content.
+- **Validation and Error Handling**: Check that invalid input triggers appropriate error responses.
+- **Authorization** (if applicable): Confirm that secured endpoints enforce proper authentication and authorization 
+  rules.
+
+Example of a test:
+
+```java
+@WebMvcTest
+class ReserveRoomRestControllerTest {
+
+    private static final ReservationIdentifier RESERVATION_IDENTIFIER =
+            new ReservationIdentifier("a674fc0c-0d74-469d-beaa-266dd98b921c");
+    private static final String ROOM_IDENTIFIER = "0fd6c5e5-ff2c-4b7a-aa06-2a6581d0fe9b";
+
+    @Autowired
+    private MockMvc mockMvc;
+
+    @MockitoBean
+    private ReserveRoomUseCase useCase;
+
+    @Test
+    void shouldReserveRoom() throws Exception {
+        // given
+        given(
+                useCase.reserve(
+                        assertArg(
+                                command -> {
+                                    assertThat(command.reservationOwnerIdentifier().value())
+                                            .isEqualTo(ReservationParticipantTestFactory.IDENTIFIER_AS_STRING);
+                                    assertThat(command.roomIdentifier().value()).isEqualTo(ROOM_IDENTIFIER);
+                                    assertThat(command.period()).isEqualTo(createPeriodBetween(11, 15));
+                                    assertThat(command.numberOfParticipants()).isEqualTo(7);
+                                })))
+                .willReturn(RESERVATION_IDENTIFIER);
+
+        // when
+        ResultActions resultActions = performRequest(getJsonRequestBody());
+
+        // then
+        resultActions
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.reservationIdentifier").value(RESERVATION_IDENTIFIER.value()));
+    }
+}
+```
+
+In the test, `MockMvc` is used, which sets up Spring with only the beans related to the web layer, such as controllers, 
+controller advice, and filters. It does not start up a real web server; instead, it mocks request and response objects. 
+The main purpose of these tests is to verify your application's web layer configuration, not the internal behavior of 
+the Spring framework.
+
+!!! question "How to test error handling?"
+
+    If an exception is thrown in controller logic (for example, during command autovalidation or built-in Spring 
+    validation of a request), the solution is straightforward—it should be tested with an integration test. However, 
+    exceptions thrown within use case logic can be more challenging to handle.
+    Typically, error handling is externalized from controllers using `ControllerAdvice` in Spring. There are two main 
+    approaches:
+    
+    1. **Write an integration test:**
+        Because @WebMvcTest includes ControllerAdvice beans, you can write integration tests that cover error handling logic`
+        The advantage of this approach is that test execution is generally faster than a full module test. However, 
+        the downside is that if the use case no longer throws the exception (e.g., the logic is removed), it is easy to forget to remove 
+        the related test from the controller integration tests.
+    2. **Write a module test:**
+        This approach has two main drawbacks: significantly longer execution time, and a potentially more complex 
+        test setup. However, if the use case stops throwing the exception, the module test will fail, making it easier 
+        to detect such changes and keep your tests up to date.
+

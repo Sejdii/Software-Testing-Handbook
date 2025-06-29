@@ -2,7 +2,7 @@ package pl.sejdii.example.adapter.out.kafka;
 
 import java.time.LocalDateTime;
 
-public record RoomReservedMessage(
+record RoomReservedMessage(
     String roomIdentifier,
     String reservationIdentifier,
     LocalDateTime startTime,

@@ -1,5 +1,7 @@
 package pl.sejdii.example.application.port.in;
 
+import java.time.LocalDateTime;
+import pl.sejdii.example.application.domain.model.ValidationException;
 import pl.sejdii.example.application.domain.model.participant.ReservationParticipantIdentifier;
 import pl.sejdii.example.application.domain.model.reservation.ReservationIdentifier;
 import pl.sejdii.example.application.domain.model.reservation.ReservationPeriod;
@@ -13,5 +15,12 @@ public interface ReserveRoomUseCase {
       ReservationParticipantIdentifier reservationOwnerIdentifier,
       RoomIdentifier roomIdentifier,
       ReservationPeriod period,
-      int numberOfParticipants) {}
+      int numberOfParticipants) {
+
+    public Command {
+      if (period.from().isBefore(LocalDateTime.now())) {
+        throw new ValidationException("Reservation cannot start in the past");
+      }
+    }
+  }
 }

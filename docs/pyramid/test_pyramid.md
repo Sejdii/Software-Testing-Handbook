@@ -15,7 +15,7 @@ The next layer are integration tests. These tests check how the application inte
 
 In the middle of the pyramid are component tests. These verify end-to-end use cases within the application, typically starting from incoming adapters, passing through business logic, and ending with outgoing adapters. Component tests are relatively slow, more expensive to write than integration tests, and more brittle. They mainly focus on validating happy paths.
 
-At the top of the pyramid are end-to-end tests. These assess the application from the reservationParticipant's perspective, making them very slow, costly to write, and highly brittle. End-to-end tests should be reserved for business-critical scenarios and executed only in production-like environments. They can be conducted via the reservationParticipant interface or the API. While UI-based tests closely mimic the reservationParticipant experience and can reveal problems missed by other types of tests, they are typically more brittle due to frequent UI changes.
+At the top of the pyramid are end-to-end tests. These assess the application from the reservationParticipant's perspective, making them very slow, costly to write, and highly brittle. End-to-end tests should be reserved for business-critical scenarios and executed only in production-like environments. They can be conducted via the user interface or the API. While UI-based tests closely mimic the reservationParticipant experience and can reveal problems missed by other types of tests, they are typically more brittle due to frequent UI changes.
 
 ## Why is the Test Pyramid Important?
 
