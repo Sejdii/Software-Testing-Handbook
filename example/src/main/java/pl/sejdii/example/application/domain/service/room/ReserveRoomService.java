@@ -28,7 +28,6 @@ class ReserveRoomService implements ReserveRoomUseCase {
 
     Reservation reservation =
         new Reservation(
-            ReservationIdentifier.random(),
             command.reservationOwnerIdentifier(),
             command.period(),
             command.roomIdentifier(),

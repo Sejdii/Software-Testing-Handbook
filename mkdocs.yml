@@ -28,6 +28,7 @@ nav:
   - pyramid/test_pyramid.md
   - unit/unit_tests.md
   - integration/integration_tests.md
+  - module/module_tests.md
   - avoid.md
 markdown_extensions:
   - pymdownx.highlight:

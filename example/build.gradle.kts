@@ -5,6 +5,7 @@ plugins {
     id("io.spring.dependency-management") version "1.1.7"
 
     id("com.diffplug.spotless").version("7.0.3")
+    jacoco
 }
 
 group = "pl.sejdii"
@@ -32,6 +33,7 @@ val mockitoVersion = "5.18.0"
 val byteBuddyVersion = "1.17.5"
 val objenesisVersion = "3.4"
 val mapstructVersion = "1.6.3"
+val jetbrainsAnnotations = "24.0.0"
 
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter-data-jdbc")
@@ -41,7 +43,7 @@ dependencies {
     implementation("org.flywaydb:flyway-database-postgresql")
     implementation("org.mapstruct:mapstruct:$mapstructVersion")
     implementation("org.springframework.kafka:spring-kafka")
-    implementation("org.jetbrains:annotations:24.0.0")
+    implementation("org.jetbrains:annotations:$jetbrainsAnnotations")
 
     compileOnly("org.projectlombok:lombok")
     compileOnly("org.springframework.kafka:spring-kafka")
@@ -53,6 +55,7 @@ dependencies {
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.springframework.boot:spring-boot-testcontainers")
+    testImplementation("org.testcontainers:kafka")
     testImplementation("org.springframework.kafka:spring-kafka-test")
     testImplementation("org.testcontainers:junit-jupiter")
     testImplementation("org.testcontainers:postgresql")
