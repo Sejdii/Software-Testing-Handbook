@@ -9,6 +9,7 @@ These rules apply to all automated tests.
 | Sociable unit test | A unit test that uses real implementations of collaborators. It uses in-memory substitutes for external systems. |
 | Solitary unit test | A unit test that replaces all collaborators with mocks. |
 | Module test | A test of a complete use case through an incoming adapter. It includes real business logic and real outgoing adapters. |
+| End-to-end (E2E) test | A test of a real user flow through the running application and its relevant system boundaries. |
 | Property-based test | A test that checks a general property over many generated inputs instead of only hand-picked examples. |
 | Differential test | A test that compares the observable behavior of an existing implementation with a replacement on the same inputs. |
 
@@ -95,6 +96,16 @@ A mapper that needs mocks for its own dependencies is a design problem. Mappers 
 - Test data (for example, the database state) should be prepared explicitly in each test or test class, not inherited from other tests.
 - Code that sends requests and checks results should be in small helper methods, so the test stays readable.
 - Asynchronous processes should be tested with a wait for a condition, not with a fixed delay.
+
+## End-to-End Verification
+
+- Prioritize E2E coverage for critical user flows. Keep unit and integration tests for fast feedback and focused diagnosis.
+- E2E evidence should demonstrate the changed behavior in the real running application through the relevant user-visible entry point, including the outcome and side effects. Calling an internal function isn't sufficient.
+- The verification environment should fit the application: a browser for web flows, a simulator or device for mobile flows, the desktop application for desktop flows, and an API harness or client for backend flows.
+- For important or complex flows, a feature map or equivalent acceptance checklist can make coverage reviewable. If provided, it should identify entry points, relevant selectors or keyboard shortcuts, steps, and expected results.
+- Evidence for an E2E failure should identify the failing step and include relevant diagnostic information, such as a screenshot, trace, response, or log. A timeout alone isn't a useful diagnosis.
+- Keep repeatable startup, test-data setup, smoke-test, and cleanup instructions near the relevant code. An agent skill or an equivalent repository script may provide this harness.
+- Keep the smoke-test harness fast and reliable enough to run routinely. It supplements focused automated tests; it doesn't replace them.
 
 ## Property-Based Tests
 
