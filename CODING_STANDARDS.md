@@ -9,6 +9,16 @@ These rules apply to all automated tests.
 | Sociable unit test | A unit test that uses real implementations of collaborators. It uses in-memory substitutes for external systems. |
 | Solitary unit test | A unit test that replaces all collaborators with mocks. |
 | Module test | A test of a complete use case through an incoming adapter. It includes real business logic and real outgoing adapters. |
+| End-to-end (E2E) test | A test of a real user flow through the running application and its relevant system boundaries. |
+| Property-based test | A test that checks a general property over many generated inputs instead of only hand-picked examples. |
+| Differential test | A test that compares the observable behavior of an existing implementation with a replacement on the same inputs. |
+
+## Verification Principles
+
+- Verification should demonstrate that the requested behavior works, not only that individual components pass their tests.
+- The verification scope should match the affected behavior and risk of the change, with focused tests for individual behaviors and real end-to-end evidence for complete features.
+- Tests and verification harnesses should be fast, reliable, and diagnostic. A failure should identify the failed behavior and provide enough evidence to investigate it.
+- Passing unit tests alone isn't evidence that a complete feature works.
 
 ## Unit Tests
 
@@ -75,7 +85,7 @@ A mapper that needs mocks for its own dependencies is a design problem. Mappers 
 
 - A module test should verify a complete use case from the client point of view: from the incoming request to the response and all side effects.
 - Module tests should exist only for critical business use cases, main happy paths, and complex integrations between components.
-- Module tests shouldn't cover edge cases. Unit tests should cover them.
+- Prefer unit tests for edge cases. Use integration or module tests when meaningful verification requires real adapters or interactions across system boundaries.
 - Module tests shouldn't be the only test type. They are slower than unit tests, couple the tests to the adapters, and make edge cases hard to test.
 - A module test should verify all results of the use case:
     - the response (status, headers, body)
@@ -87,12 +97,52 @@ A mapper that needs mocks for its own dependencies is a design problem. Mappers 
 - Code that sends requests and checks results should be in small helper methods, so the test stays readable.
 - Asynchronous processes should be tested with a wait for a condition, not with a fixed delay.
 
+## End-to-End Verification
+
+- Prioritize E2E coverage for critical user flows. Keep unit and integration tests for fast feedback and focused diagnosis.
+- E2E evidence should demonstrate the changed behavior in the real running application through the relevant user-visible entry point, including the outcome and side effects. Calling an internal function isn't sufficient.
+- The verification environment should fit the application: a browser for web flows, a simulator or device for mobile flows, the desktop application for desktop flows, and an API harness or client for backend flows.
+- For important or complex flows, a feature map or equivalent acceptance checklist can make coverage reviewable. If provided, it should identify entry points, relevant selectors or keyboard shortcuts, steps, and expected results.
+- Evidence for an E2E failure should identify the failing step and include relevant diagnostic information, such as a screenshot, trace, response, or log. A timeout alone isn't a useful diagnosis.
+- Keep repeatable startup, test-data setup, smoke-test, and cleanup instructions near the relevant code. An agent skill or an equivalent repository script may provide this harness.
+- Keep the smoke-test harness fast and reliable enough to run routinely. It supplements focused automated tests; it doesn't replace them.
+
+## Property-Based Tests
+
+- Use property-based tests where the behavior has a general constraint that should hold across many inputs, especially for parsers, serializers, transformations, and state transitions.
+- State the property explicitly. Examples include round-trip encoding, domain invariants, idempotency, and equivalence to a simple reference implementation.
+- Use a property-testing library to generate varied inputs, including boundary values. Don't derive the expected result by copying the implementation under test.
+- Preserve the seed or minimized failing input so a failure can be reproduced. Keep a focused regression case for a discovered bug when appropriate.
+- Use property-based tests alongside example-based tests, not as a replacement for verifying concrete user flows.
+
+## Differential Tests
+
+- For behavior-preserving migrations, rewrites, and optimizations, differential tests should be considered according to regression risk when a runnable baseline or previously captured baseline outputs are available and comparison is practical. Otherwise, regression tests should verify established behavior and acceptance criteria.
+- Where differential tests are used, the baseline and replacement should be evaluated on identical inputs: generated cases or an approved, sanitized sample of production traffic.
+- Comparisons should cover observable outputs and relevant side effects. Executions should be isolated so one implementation's state changes don't affect the other.
+- Normalization should remove only differences irrelevant to the required behavior, such as insignificant formatting. It must not hide meaningful ordering, errors, or data.
+- Intentional differences should be documented and approved. An unexplained difference is a possible regression, not an automatic update to the expected result.
+- Review evidence should identify the baseline revision or captured outputs, the inputs compared, and the results. The reviewer shouldn't need to reconstruct the original implementation.
+
+## Maintaining the Verification System
+
+- A change must not be able to weaken the rules that decide whether that same change passes.
+- Tests and rules may evolve, but changes to gating policy need independent approval and must not silently relax the gate for their own change.
+- Prune redundant tests, obsolete rules, and low-value verification steps. Maintain the verification harness like production code.
+
 ## Practices to Avoid
 
 ### Waiting
 
 - A test shouldn't use fixed delays (`sleep`).
 - Fix: wait for a condition with a timeout.
+
+### Ignoring Flaky Tests
+
+- A test that sometimes passes without a relevant code change is a reliability defect. Don't rerun it until it passes and call the change verified.
+- Don't skip a flaky test, add fixed delays, or weaken its assertions to hide the failure.
+- Fix: preserve failure evidence, investigate the root cause, and verify the repair.
+- If the root cause remains unresolved, require human approval before quarantining or deleting the test. Record the reason, the coverage lost, and follow-up ownership; make any quarantine visible in verification results.
 
 ### Interaction Verification
 
@@ -102,7 +152,7 @@ A mapper that needs mocks for its own dependencies is a design problem. Mappers 
 
 ### Conditional Logic
 
-- Test code shouldn't contain `if`, `switch`, or loops.
+- Individual example-based test scenarios shouldn't contain `if`, `switch`, or loops. Property-based generators and shared verification harnesses may use control flow to generate inputs or drive a flow, but shouldn't conditionally skip required assertions.
 - A parameterized test shouldn't be used when each parameter needs a different assertion.
 - Fix: write one test for each case.
 
