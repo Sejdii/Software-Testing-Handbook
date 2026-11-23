@@ -16,6 +16,10 @@ This guide has a few goals:
 - To show why commonly accepted practices, like writing a unit test for every class, may not always be the best approach for your project.
 - To explain the importance of a healthy test pyramid and provide guidance on how to achieve it.
 
+## Standards and Verification
+
+[Coding Standards: Testing](./CODING_STANDARDS.md) defines expectations for automated tests. [Deterministic Verification](./DETERMINISTIC_VERIFICATION.md) describes the preferred direction for enforcing checkable rules automatically and reserving human or LLM review for questions that require judgment.
+
 ## Feedback and Contribution
 
 Your feedback is invaluable for improving this guide. If you notice any mistakes, unclear explanations, or areas that could be expanded, please create an issue in the GitHub repository for this guide. Contributions of all kinds—such as corrections, suggestions, or additional examples—are warmly welcomed.
